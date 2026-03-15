@@ -113,7 +113,7 @@ Tabs.GeneralTab = Window:Tab({
 
 -- 3. 透视标签页
 Tabs.ESP_Tab = Window:Tab({ 
-    Title = "高级玩家透视", 
+    Title = "玩家透视", 
     Icon = "eye",
     Desc = "高级玩家透视与追踪功能"
 })
@@ -283,7 +283,7 @@ local jumpConnection = nil
 -- 无限跳功能（修改为可以在空中跳跃）
 local infiniteJumpToggle = Tabs.GeneralTab:Toggle({
     Title = "无限跳跃",
-    Desc = "开启后可以无限次跳跃（空中也可跳跃）",
+    Desc = "开启后可以无限次跳跃",
     Value = false,
     Callback = function(state) 
         infiniteJumpEnabled = state
@@ -982,57 +982,246 @@ function isPlayerFriend(player)
 end
 
 -- ========== 选择服务器标签页内容 ==========
--- 已清空所有功能，仅保留标签页结构
--- 这里可以后续添加自定义的服务器选择功能
+-- ====== 游戏ID与脚本映射配置 ======
+local GameScripts = {
+    [10253248401] = {"元素力量大亨", "https://raw.githubusercontent.com/nznb520/Atrumix/042524fac05940b1b1a9389a0bbb9572441b1bc3/%E5%85%83%E7%B4%A0%E5%8A%9B%E9%87%8F%E5%A4%A7%E4%BA%A8"},
+    [79546208627805] = {"99夜", "https://raw.githubusercontent.com/nznb520/Atrumix/cca264ca9a72738d7d0f51b3e5bd31a764e9d0ec/99%E5%A4%9C"},
+    [131716211654599] = {"鱼", "https://raw.githubusercontent.com/nznb520/Atrumix/881626be7e7cc72ac677c9cf375f3cb8c794eb55/%E9%B1%BC"},
+    [13772394625] = {"刀刃球", "https://raw.githubusercontent.com/nznb520/Atrumix/b71ce91c007fd0cc5e3866c8c13ef8ee13ac17a9/%E5%88%80%E5%88%83%E7%90%83"},
+    [124977557560410] = {"种植花园", "https://raw.githubusercontent.com/nznb520/Atrumix/045a07f1bbe87ad4d96f2ba8f2ab015db004bf20/%E7%A7%8D%E6%A4%8D%E8%8A%B1%E5%9B%AD"},
+    [7541759836] = {"凹凸世界", "https://raw.githubusercontent.com/nznb520/Atrumix/main/%E5%87%B9%E5%87%B8%E4%B8%96%E7%95%8C.lua"},
+    [3101667897] = {"极速传奇", "https://raw.githubusercontent.com/nznb520/MX-Script-Center/refs/heads/main/%E6%9E%81%E9%80%9F%E4%BC%A0%E5%A5%87"},
+    [1537690962] = {"蜂群模拟器", "https://raw.githubusercontent.com/nznb520/MX-Script-Center/refs/heads/main/%E8%9C%82%E7%BE%A4%E6%A8%A1%E6%8B%9F%E5%99%A8"}
+}
+
+-- 自动检测并执行功能
+Tabs.ServerTab:Button({
+    Title = "自动检测并执行",
+    Desc = "点击检测当前游戏并自动执行对应脚本",
+    Variant = "Primary",
+    Callback = function()
+        local placeId = game.PlaceId
+        print("当前游戏ID: " .. placeId)
+        
+        if GameScripts[placeId] then
+            local gameName = GameScripts[placeId][1]
+            local scriptUrl = GameScripts[placeId][2]
+            
+            WindUI:Notify({
+                Title = "检测成功",
+                Content = "检测到当前游戏: " .. gameName .. "\n正在执行脚本...",
+                Icon = "check",
+                Duration = 3,
+            })
+            
+            print("正在执行脚本: " .. scriptUrl)
+            local success, err = pcall(function()
+                loadstring(game:HttpGet(scriptUrl, true))()
+            end)
+            
+            if not success then
+                WindUI:Notify({
+                    Title = "执行失败",
+                    Content = "脚本执行失败: " .. tostring(err),
+                    Icon = "alert-circle",
+                    Duration = 5,
+                })
+            end
+        else
+            WindUI:Notify({
+                Title = "暂不支持此服务器",
+                Content = "当前游戏ID: " .. placeId .. "\n暂未支持此游戏，请手动选择或联系作者添加支持。",
+                Icon = "alert-circle",
+                Duration = 5,
+            })
+        end
+    end
+})
+
+Tabs.ServerTab:Divider()
+
+-- 为每个游戏添加手动执行按钮
 Tabs.ServerTab:Paragraph({
-    Title = "服务器功能设置",
-    Desc = "此区域已清空，可供后续自定义添加服务器选择功能。\n\n请根据需要在此添加您的服务器管理功能。",
-    Image = "server",
+    Title = "手动选择游戏执行",
+    Desc = "如果自动检测失败，可以手动选择要执行的游戏脚本",
+    Image = "cpu",
     Color = "Grey"
 })
 
+-- 遍历所有游戏，为每个游戏创建按钮
+for placeId, gameInfo in pairs(GameScripts) do
+    local gameName = gameInfo[1]
+    local scriptUrl = gameInfo[2]
+    
+    Tabs.ServerTab:Button({
+        Title = "执行: " .. gameName,
+        Desc = "点击执行" .. gameName .. "脚本",
+        Callback = function()
+            WindUI:Notify({
+                Title = "正在执行",
+                Content = "正在加载" .. gameName .. "脚本...",
+                Icon = "cpu",
+                Duration = 3,
+            })
+            
+            print("正在执行" .. gameName .. "脚本: " .. scriptUrl)
+            local success, err = pcall(function()
+                loadstring(game:HttpGet(scriptUrl, true))()
+            end)
+            
+            if not success then
+                WindUI:Notify({
+                    Title = "执行失败",
+                    Content = gameName .. "脚本执行失败: " .. tostring(err),
+                    Icon = "alert-circle",
+                    Duration = 5,
+                })
+            end
+        end
+    })
+end
+
+Tabs.ServerTab:Divider()
+
+Tabs.ServerTab:Paragraph({
+    Title = "服务器功能说明",
+    Desc = "1. 自动检测并执行：自动检测当前游戏并执行对应脚本\n2. 手动选择执行：如果自动检测失败，可以手动选择游戏\n3. 当前支持" .. #GameScripts .. "款游戏",
+    Image = "server",
+    Color = "Blue"
+})
+
 -- ========== 外设设置标签页内容 ==========
--- 自定义主题创建：获取当前主题的背景色配置（ThemeAccent）
+-- 调用该方法可设置UI整体主题，Light为亮色主题，取消注释即可生效
+-- WindUI:SetTheme("Light")
+
+-- 提取的UI颜色调整相关代码
+-- 1. 主题选择下拉菜单 - 切换UI整体主题
+local themeValues = {}
+for name, _ in pairs(WindUI:GetThemes()) do
+    table.insert(themeValues, name)
+end
+
+local themeDropdown = Tabs.PeripheralTab:Dropdown({
+    Title = "选择主题",
+    Multi = false,
+    AllowNone = false,
+    Value = nil,
+    Values = themeValues,
+    Callback = function(theme)
+        WindUI:SetTheme(theme)
+    end
+})
+
+-- 设置当前主题为默认值
+local currentTheme = WindUI:GetCurrentTheme()
+if currentTheme then
+    themeDropdown:Select(currentTheme)
+end
+
+Tabs.PeripheralTab:Divider()
+
+-- 2. 窗口透明度开关
+local ToggleTransparency = Tabs.PeripheralTab:Toggle({
+    Title = "窗口透明模式",
+    Desc = "切换窗口的透明效果",
+    Callback = function(e)
+        Window:ToggleTransparency(e)
+    end,
+    Value = WindUI:GetTransparency()
+})
+
+Tabs.PeripheralTab:Divider()
+
+-- 3. 自定义主题创建相关代码
+-- 获取当前主题的颜色配置
 local currentThemeName = WindUI:GetCurrentTheme()
 local themes = WindUI:GetThemes()
-local ThemeAccent = themes[currentThemeName].Accent  -- 背景色存储在Accent字段中
+local ThemeAccent = themes[currentThemeName].Accent
 local ThemeOutline = themes[currentThemeName].Outline
 local ThemeText = themes[currentThemeName].Text
 local ThemePlaceholderText = themes[currentThemeName].Placeholder
 
--- 自定义主题创建：更新主题的函数（包含背景色的应用）
+-- 更新主题的函数
 function updateTheme()
     WindUI:AddTheme({
         Name = currentThemeName,
-        Accent = ThemeAccent,        -- 背景色
+        Accent = ThemeAccent,
         Outline = ThemeOutline,
         Text = ThemeText,
         Placeholder = ThemePlaceholderText
     })
-    WindUI:SetTheme(currentThemeName) -- 应用更新后的主题
+    WindUI:SetTheme(currentThemeName)
 end
 
--- 自定义主题创建：背景色选择器（核心部分）
-Tabs.PeripheralTab:Colorpicker({
-    Title = "背景颜色",
-    Desc = "选择界面的背景颜色",
-    Default = Color3.fromHex(ThemeAccent), -- 初始值为当前主题背景色
-    Callback = function(color)
-        ThemeAccent = color:ToHex() -- 接收选择的颜色并转为16进制（更新背景色变量）
-        updateTheme() -- 立即应用主题更改
+-- 主题名称输入框
+local CreateInput = Tabs.PeripheralTab:Input({
+    Title = "主题名称",
+    Desc = "输入新主题的名称",
+    Value = currentThemeName,
+    Callback = function(name)
+        currentThemeName = name
     end
 })
 
--- 窗口配置标签页中：加载文件时应用背景色的回调（间接相关）
--- 注意：这段代码是原示例代码中的一部分，但在当前脚本中我们没有文件保存/加载功能
--- 所以我们保留这个注释作为参考
--- if data.Transparent then 
---     Window:ToggleTransparency(data.Transparent)
---     ToggleTransparency:SetValue(data.Transparent)
--- end
--- if data.Theme then 
---     WindUI:SetTheme(data.Theme)  -- 这里会应用保存的主题，其中包含背景色
--- end
+Tabs.PeripheralTab:Divider()
+
+-- 背景色选择器（主色调）
+Tabs.PeripheralTab:Colorpicker({
+    Title = "背景颜色",
+    Desc = "选择界面的背景颜色",
+    Default = Color3.fromHex(ThemeAccent),
+    Callback = function(color)
+        ThemeAccent = color:ToHex()
+    end
+})
+
+-- 轮廓色选择器
+Tabs.PeripheralTab:Colorpicker({
+    Title = "轮廓颜色",
+    Desc = "选择界面的轮廓颜色",
+    Default = Color3.fromHex(ThemeOutline),
+    Callback = function(color)
+        ThemeOutline = color:ToHex()
+    end
+})
+
+-- 文字色选择器
+Tabs.PeripheralTab:Colorpicker({
+    Title = "文字颜色",
+    Desc = "选择界面中的文字颜色",
+    Default = Color3.fromHex(ThemeText),
+    Callback = function(color)
+        ThemeText = color:ToHex()
+    end
+})
+
+-- 占位文字色选择器
+Tabs.PeripheralTab:Colorpicker({
+    Title = "占位文字颜色",
+    Desc = "选择占位文字的颜色",
+    Default = Color3.fromHex(ThemePlaceholderText),
+    Callback = function(color)
+        ThemePlaceholderText = color:ToHex()
+    end
+})
+
+Tabs.PeripheralTab:Divider()
+
+-- 更新主题按钮
+Tabs.PeripheralTab:Button({
+    Title = "更新主题",
+    Desc = "应用自定义主题设置",
+    Variant = "Primary",
+    Callback = function()
+        updateTheme()
+        WindUI:Notify({
+            Title = "主题已更新",
+            Content = "自定义主题已成功应用",
+            Icon = "check",
+            Duration = 3,
+        })
+    end
+})
 
 -- 窗口关闭回调
 Window:OnClose(function()
@@ -1102,3 +1291,4 @@ showWelcomeMessage()
 print("MX脚本中心加载完成！")  -- ML改为MX
 print("当前用户: " .. displayName .. " (@" .. username .. ")")
 print("脚本作者: 南烛")
+: 南烛")
