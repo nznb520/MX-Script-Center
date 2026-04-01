@@ -17,29 +17,262 @@ function gradient(text, startColor, endColor)
     return result
 end
 
-local Confirmed = false
--- 修改欢迎界面，使用新的圆形图片
-WindUI:Popup({
-    Title = "欢迎使用MX脚本中心",  -- ML改为MX
-    Icon = "https://i.ibb.co/Kxdd09fK/1773553440831.jpg",  -- 使用新的圆形图片
-    IconThemed = false,  -- 不使用主题色
-    Content = "欢迎使用 " .. gradient("MX脚本中心", Color3.fromHex("#00FF87"), Color3.fromHex("#60EFFF")) .. " 功能界面",  -- ML改为MX
-    Buttons = {
-        {
-            Title = "取消",
-            Callback = function() end,
-            Variant = "Secondary",
-        },
-        {
-            Title = "继续",
-            Icon = "arrow-right",
-            Callback = function() Confirmed = true end,
-            Variant = "Primary",
+-- 语言配置表（只保留中文）
+local Language = {
+    current = "中文", -- 默认语言
+    strings = {
+        -- 中文
+        中文 = {
+            -- 欢迎界面
+            welcomeTitle = "欢迎使用MX脚本中心",
+            welcomeContent = "功能界面",
+            cancel = "取消",
+            continue = "继续",
+            
+            -- 标签页标题
+            infoTab = "信息",
+            generalTab = "通用",
+            espTab = "ESP透视",
+            serverTab = "选择服务器",
+            developerTab = "开发人员",
+            uiSettingsTab = "UI设置",
+            
+            -- 信息标签页
+            userInfo = "👤 当前用户信息",
+            username = "用户名",
+            displayName = "显示名",
+            userID = "用户ID",
+            军团联系方式 = "军团联系方式",
+            groupNotice = [[墨龙凌霄军团群号: 984492273
+星夜海军团群号: 461528783
+
+<font color="#ff0000"><b>注意事项：</b></font>
+<font color="#ff0000"><b>以上群号均为企鹅群 🔥</b></font>
+
+<font color="#ff0000"><b>【群规红线·违者必究】</b></font>
+<font color="#ff0000">此群拒绝负能量，更拒绝脏东西！</font>
+<font color="#ff0000">🚫 严禁：骂人、引战、起哄、人身攻击。</font>
+<font color="#ff0000">🚫 严禁：黄、赌、毒、血腥、惊悚、低俗内容。</font>
+<font color="#ff0000">谁要是敢在这个群里撒野、搞破坏、传送污秽，别怪我不留情面，直接光速拉黑！守规矩，咱们继续好好玩；越红线，出门左转不送！</font>]],
+           活动公告 = "【星夜海】军团与【墨龙 凌霄】军团联合公告",
+           活动内容 = [[从今天起【星夜海】军团与【墨龙 凌霄】军团手游上线之后将会开启【友军训练战】
+
+规则：（活动时间：出手游的第6周）
+
+注意：参赛人员必须是远古龙！并且拉复活的钱双方共出，并且打架期间不能使用技能只能使用普通的咬
+
+1.双方各出一个人与对方单挑，活着则赢，死者则输（切记友谊第1比赛第2！）
+2.所有普通成员打完之后便会有各个分队的队长继续训练（跟第1条一样）
+3.最后由各个团的副团长和团长相互配合攻打对方的团长和副团长（赢的军团将会获得6666龙币）]],
+           注意事项 = "活动注意事项",
+           注意事项内容 = "1. 请所有参赛成员提前做好准备\n2. 比赛期间请保持良好体育精神\n3. 如有任何问题请联系军团管理员\n4. 奖励将在比赛结束后3个工作日内发放",
+            
+            -- 通用标签页
+            fly = "飞行",
+            flyDesc = "点击启用飞行功能",
+            flyCar = "飞车",
+            flyCarDesc = "点击启用飞车功能",
+            noclip = "穿墙模式 (Noclip)",
+            noclipDesc = "开启后可以穿透墙壁和障碍物",
+            infiniteJump = "无限跳跃",
+            infiniteJumpDesc = "开启后可以无限次跳跃（空中也可跳跃）",
+            climb = "爬墙模式",
+            climbDesc = "开启后可以在墙上垂直攀爬",
+            reset = "重置人物",
+            resetDesc = "将人物重置到初始状态",
+            speed = "移动速度",
+            speedDesc = "拖动滑块调整人物移动速度",
+            jumpHeight = "跳跃高度",
+            jumpHeightDesc = "拖动滑块调整跳跃高度",
+            gravity = "重力强度",
+            gravityDesc = "拖动滑块调整重力强度（值越小重力越弱）",
+            mapXray = "地图透视",
+            mapXrayDesc = "开启后地图会变成透明状态，方便观察",
+            
+            -- ESP标签页
+            playerHighlight = "玩家高亮 (白色轮廓)",
+            playerHighlightDesc = "开启后用白色轮廓高亮显示玩家，不显示名称",
+            showDistance = "显示距离",
+            showDistanceDesc = "在玩家头顶显示距离（格），每秒刷新一次",
+            showHealth = "显示血量",
+            showHealthDesc = "在玩家头顶显示剩余血量，每秒刷新一次",
+            showTracers = "显示追踪线",
+            showTracersDesc = "从屏幕底部/居中到玩家画一条追踪线",
+            tracerStart = "追踪线起点位置",
+            tracerStartDesc = "选择追踪线的起始点位置",
+            bottom = "底部",
+            center = "居中",
+            teamCheck = "队伍检测",
+            teamCheckDesc = "检测玩家阵营（绿色为己方，红色为敌方）",
+            
+            -- 服务器标签页
+            autoDetect = "自动检测并执行",
+            autoDetectDesc = "点击检测当前游戏并自动执行对应脚本",
+            manualSelect = "手动选择游戏执行",
+            manualSelectDesc = "如果自动检测失败，可以手动选择要执行的游戏脚本",
+            serverDesc = "服务器功能说明",
+            serverDescContent = "1. 自动检测并执行：自动检测当前游戏并执行对应脚本\n2. 手动选择执行：如果自动检测失败，可以手动选择游戏\n3. 现在可以执行",
+            tip = "温馨提示",
+            tipContent = "<font color='#ff0000'>由于本脚本原本叫Atrumix，所以有的服务器名字就叫这个，本人懒得改</font>",
+            
+            -- UI设置标签页
+            bgColor = "界面背景颜色",
+            bgColorDesc = "选择UI界面的背景颜色",
+            fontSize = "字体大小",
+            fontSizeDesc = "调整界面字体大小",
+            transparency = "界面透明度",
+            transparencyDesc = "调整界面整体透明度",
+            displaySettings = "显示设置说明",
+            displaySettingsDesc = "此处可以调整UI界面的显示效果\n背景颜色功能目前为预览版",
+            
+            -- 开发人员标签页
+            developerTitle = "开发人员信息",
+            developerDesc = "MX脚本中心开发团队信息",
+            developerAuthor = "主要开发者: 南烛",
+            developerContact = "联系方式",
+            developerQQ = "QQ: 1070748130",
+            developerTeam = "开发团队",
+            developerTeamDesc = "墨龙凌霄军团 & 星夜海军团",
+            developerVersion = "当前版本: v2.0.0",
+            developerUpdate = "最后更新: 2026年4月1日",
+            developerThanks = "特别感谢",
+            developerThanksDesc = "感谢所有支持我们的用户和测试人员！",
+            
+            -- 其他
+            userDetails = "用户详细信息",
+            ok = "确定",
+            detecting = "检测成功",
+            loading = "正在执行",
+            failed = "执行失败",
+            notSupported = "暂不支持此服务器",
+            welcome = "欢迎使用MX脚本中心",
+            author = "作者: 南烛",
         }
     }
-})
+}
 
-repeat wait() until Confirmed
+-- 获取当前语言的文本
+function L(key)
+    return Language.strings[Language.current][key] or key
+end
+
+-- 创建欢迎页面
+local function createWelcomeScreen()
+    -- 创建全屏背景
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "MXWelcomeScreen"
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = game:GetService("CoreGui")
+    
+    -- 灰色半透明背景
+    local background = Instance.new("Frame")
+    background.Name = "Background"
+    background.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    background.BackgroundTransparency = 0.3
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.ZIndex = 1
+    background.Parent = screenGui
+    
+    -- 主容器
+    local container = Instance.new("Frame")
+    container.Name = "Container"
+    container.BackgroundTransparency = 1
+    container.Size = UDim2.new(1, 0, 1, 0)
+    container.ZIndex = 2
+    container.Parent = screenGui
+    
+    -- 图片容器
+    local imageContainer = Instance.new("Frame")
+    imageContainer.Name = "ImageContainer"
+    imageContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+    imageContainer.BackgroundTransparency = 1
+    imageContainer.Position = UDim2.new(0.5, 0, 0.4, 0)
+    imageContainer.Size = UDim2.new(0, 300, 0, 300)
+    imageContainer.Parent = container
+    
+    -- 圆角图片
+    local image = Instance.new("ImageLabel")
+    image.Name = "WelcomeImage"
+    image.BackgroundTransparency = 1
+    image.Size = UDim2.new(1, 0, 1, 0)
+    image.Image = "https://i.ibb.co/q41kMhn/1773553440831.jpg"
+    image.ScaleType = Enum.ScaleType.Crop
+    image.Parent = imageContainer
+    
+    -- 添加圆角
+    local corner = Instance.new("UICorner")
+    corner.Name = "Corner"
+    corner.CornerRadius = UDim.new(0, 20)
+    corner.Parent = image
+    
+    -- 添加阴影效果
+    local shadow = Instance.new("ImageLabel")
+    shadow.Name = "Shadow"
+    shadow.BackgroundTransparency = 1
+    shadow.Size = UDim2.new(1, 20, 1, 20)
+    shadow.Position = UDim2.new(0, -10, 0, -10)
+    shadow.Image = "rbxassetid://1316045217"
+    shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    shadow.ImageTransparency = 0.5
+    shadow.ScaleType = Enum.ScaleType.Slice
+    shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+    shadow.Parent = imageContainer
+    shadow.ZIndex = -1
+    
+    -- 文字容器
+    local textContainer = Instance.new("Frame")
+    textContainer.Name = "TextContainer"
+    textContainer.AnchorPoint = Vector2.new(0.5, 0)
+    textContainer.BackgroundTransparency = 1
+    textContainer.Position = UDim2.new(0.5, 0, 0.7, 0)
+    textContainer.Size = UDim2.new(0, 400, 0, 100)
+    textContainer.Parent = container
+    
+    -- 欢迎文字
+    local welcomeText = Instance.new("TextLabel")
+    welcomeText.Name = "WelcomeText"
+    welcomeText.BackgroundTransparency = 1
+    welcomeText.Size = UDim2.new(1, 0, 1, 0)
+    welcomeText.Font = Enum.Font.GothamBold
+    welcomeText.Text = "感谢您使用MX脚本中心"
+    welcomeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    welcomeText.TextScaled = true
+    welcomeText.TextSize = 24
+    welcomeText.TextWrapped = true
+    welcomeText.Parent = textContainer
+    
+    -- 点击关闭事件
+    local function closeWelcomeScreen()
+        screenGui:Destroy()
+        return true
+    end
+    
+    -- 添加点击关闭功能
+    background.MouseButton1Click:Connect(closeWelcomeScreen)
+    container.MouseButton1Click:closeWelcomeScreen
+    
+    return screenGui
+end
+
+-- 显示欢迎页面
+local welcomeScreen = createWelcomeScreen()
+
+-- 等待欢迎页面关闭
+local welcomeClosed = false
+welcomeScreen.Destroying:Connect(function()
+    welcomeClosed = true
+end)
+
+repeat wait() until welcomeClosed
+
+-- 显示执行通知
+WindUI:Notify({
+    Title = "MX脚本中心",
+    Content = "脚本已成功加载，正在初始化界面...",
+    Icon = "cpu",
+    Duration = 3,
+})
 
 -- 获取当前用户信息
 local Players = game:GetService("Players")
@@ -55,13 +288,13 @@ end)
 
 local avatarUrl = success and avatarThumb or "rbxassetid://129260712070622" -- 备用图标
 
--- 创建主窗口，修改标题为MX，删除KeySystem验证功能
+-- 创建主窗口，修改标题为MX
 local Window = WindUI:CreateWindow({
-    Title = "MX脚本中心",  -- ML改为MX
-    Subtitle = "作者:南烛", -- 添加副标题
-    Icon = "https://i.ibb.co/Kxdd09fK/1773553440831.jpg",  -- 使用新的圆形图片
+    Title = L("welcomeTitle"),
+    Subtitle = L("author"), -- 添加副标题
+    Icon = "https://i.ibb.co/Kxdd09fK/1773553440831.jpg",  -- 使用圆形图片
     IconThemed = false,  -- 不使用主题色
-    Author = "MX脚本中心",  -- ML改为MX
+    Author = L("welcomeTitle"),
     Folder = "MX_Scripts",  -- 文件夹名相应修改
     Size = UDim2.fromOffset(620, 560), -- 增加高度以容纳更多内容
     Transparent = true,
@@ -72,12 +305,12 @@ local Window = WindUI:CreateWindow({
             print("用户信息区域被点击")
             -- 点击用户区域时可以显示更多用户信息
             Window:Dialog({
-                Title = "用户详细信息",
-                Content = string.format("用户ID: %d\n用户名: %s\n显示名: %s", userId, username, displayName),
+                Title = L("userDetails"),
+                Content = string.format(L("userID") .. ": %d\n" .. L("username") .. ": %s\n" .. L("displayName") .. ": %s", userId, username, displayName),
                 Icon = "user",
                 Buttons = {
                     {
-                        Title = "确定",
+                        Title = L("ok"),
                         Variant = "Primary",
                         Callback = function() end,
                     }
@@ -91,45 +324,51 @@ local Window = WindUI:CreateWindow({
     },
     SideBarWidth = 200,
     ScrollBarEnabled = true,
-    -- 已删除KeySystem配置，移除卡密验证功能
 })
 
--- 创建5个功能标签页
+-- 创建6个功能标签页
 local Tabs = {}
 
 -- 1. 信息标签页
 Tabs.InfoTab = Window:Tab({ 
-    Title = "信息", 
+    Title = L("infoTab"), 
     Icon = "info",
     Desc = "军团活动与公告信息"
 })
 
 -- 2. 通用标签页
 Tabs.GeneralTab = Window:Tab({ 
-    Title = "通用", 
+    Title = L("generalTab"), 
     Icon = "settings",
     Desc = "通用功能设置"
 })
 
--- 3. 透视标签页
+-- 3. ESP标签页
 Tabs.ESP_Tab = Window:Tab({ 
-    Title = "玩家透视", 
+    Title = L("espTab"), 
     Icon = "eye",
-    Desc = "高级玩家透视与追踪功能"
+    Desc = "玩家透视与追踪功能"
 })
 
 -- 4. 选择服务器标签页
 Tabs.ServerTab = Window:Tab({ 
-    Title = "选择服务器", 
+    Title = L("serverTab"), 
     Icon = "server",
     Desc = "服务器选择与管理"
 })
 
--- 5. 外设设置标签页
-Tabs.PeripheralTab = Window:Tab({ 
-    Title = "外设设置", 
+-- 5. 开发人员标签页（新增）
+Tabs.DeveloperTab = Window:Tab({ 
+    Title = L("developerTab"), 
+    Icon = "users",
+    Desc = "开发人员信息与联系方式"
+})
+
+-- 6. UI设置标签页（原外设设置）
+Tabs.UISettingsTab = Window:Tab({ 
+    Title = L("uiSettingsTab"), 
     Icon = "monitor",
-    Desc = "外设与显示设置"
+    Desc = "UI界面显示设置"
 })
 
 -- 设置默认选中的标签页
@@ -138,10 +377,10 @@ Window:SelectTab(1)
 -- ========== 信息标签页内容 ==========
 -- 添加用户信息展示区域
 Tabs.InfoTab:Paragraph({
-    Title = "👤 当前用户信息",
-    Desc = string.format([[<b>用户名:</b> %s
-<b>显示名:</b> %s
-<b>用户ID:</b> %d]], username, displayName, userId),
+    Title = L("userInfo"),
+    Desc = string.format([[<b>%s:</b> %s
+<b>%s:</b> %s
+<b>%s:</b> %d]], L("username"), username, L("displayName"), displayName, L("userID"), userId),
     Image = avatarUrl,
     ImageSize = 60,
     Thumbnail = avatarUrl,
@@ -151,23 +390,13 @@ Tabs.InfoTab:Paragraph({
 
 Tabs.InfoTab:Divider()
 
--- 添加军团群号信息段落（更新群号）
+-- 添加军团群号信息段落
 Tabs.InfoTab:Paragraph({
-    Title = "军团联系方式",
-    Desc = [[墨龙凌霄军团群号: 984492273
-星夜海军团群号: 461528783
-
-<font color="#ff0000"><b>注意事项：</b></font>
-<font color="#ff0000"><b>以上群号均为企鹅群 🔥</b></font>
-
-<font color="#ff0000"><b>【群规红线·违者必究】</b></font>
-<font color="#ff0000">此群拒绝负能量，更拒绝脏东西！</font>
-<font color="#ff0000">🚫 严禁：骂人、引战、起哄、人身攻击。</font>
-<font color="#ff0000">🚫 严禁：黄、赌、毒、血腥、惊悚、低俗内容。</font>
-<font color="#ff0000">谁要是敢在这个群里撒野、搞破坏、传送污秽，别怪我不留情面，直接光速拉黑！守规矩，咱们继续好好玩；越红线，出门左转不送！</font>]],
-    Image = "https://i.ibb.co/Kxdd09fK/1773553440831.jpg",  -- 使用用户提供的图片链接1
+    Title = L("军团联系方式"),
+    Desc = L("groupNotice"),
+    Image = "https://i.ibb.co/Kxdd09fK/1773553440831.jpg",
     ImageSize = 60,
-    Thumbnail = "https://i.ibb.co/Kxdd09fK/1773553440831.jpg",  -- 也作为缩略图显示
+    Thumbnail = "https://i.ibb.co/Kxdd09fK/1773553440831.jpg",
     ThumbnailSize = 120
 })
 
@@ -175,19 +404,11 @@ Tabs.InfoTab:Divider()
 
 -- 添加军团活动公告
 Tabs.InfoTab:Paragraph({
-    Title = "【星夜海】军团与【墨龙 凌霄】军团联合公告",
-    Desc = [[从今天起【星夜海】军团与【墨龙 凌霄】军团手游上线之后将会开启【友军训练战】
-
-规则：（活动时间：出手游的第6周）
-
-注意：参赛人员必须是远古龙！并且拉复活的钱双方共出，并且打架期间不能使用技能只能使用普通的咬
-
-1.双方各出一个人与对方单挑，活着则赢，死者则输（切记友谊第1比赛第2！）
-2.所有普通成员打完之后便会有各个分队的队长继续训练（跟第1条一样）
-3.最后由各个团的副团长和团长相互配合攻打对方的团长和副团长（赢的军团将会获得6666龙币）]],
-    Image = "https://i.ibb.co/pjK9X8wy/1773553329000.jpg",  -- 使用用户提供的图片链接2作为小图片
+    Title = L("活动公告"),
+    Desc = L("活动内容"),
+    Image = "https://i.ibb.co/pjK9X8wy/1773553329000.jpg",
     ImageSize = 60,
-    Thumbnail = "https://i.ibb.co/F1mLwL9/1773550399414.jpg",  -- 使用原大图片，显示为正方形
+    Thumbnail = "https://i.ibb.co/F1mLwL9/1773550399414.jpg",
     ThumbnailSize = 150
 })
 
@@ -195,8 +416,8 @@ Tabs.InfoTab:Divider()
 
 -- 添加活动注意事项
 Tabs.InfoTab:Paragraph({
-    Title = "活动注意事项",
-    Desc = "1. 请所有参赛成员提前做好准备\n2. 比赛期间请保持良好体育精神\n3. 如有任何问题请联系军团管理员\n4. 奖励将在比赛结束后3个工作日内发放",
+    Title = L("注意事项"),
+    Desc = L("注意事项内容"),
     Image = "alert-circle",
     Color = "Blue"
 })
@@ -204,12 +425,21 @@ Tabs.InfoTab:Paragraph({
 -- ========== 通用标签页内容 ==========
 -- 飞行功能按钮
 Tabs.GeneralTab:Button({
-    Title = "飞行",
-    Desc = "点击启用飞行功能",
+    Title = L("fly"),
+    Desc = L("flyDesc"),
     Callback = function() 
         print("正在加载飞行功能...")
-        -- 执行飞行脚本
         loadstring(game:HttpGet('https://raw.githubusercontent.com/nznb520/MX-Script-Center/main/%E9%A3%9E%E8%A1%8C'))()
+    end
+})
+
+-- 飞车功能按钮
+Tabs.GeneralTab:Button({
+    Title = L("flyCar"),
+    Desc = L("flyCarDesc"),
+    Callback = function() 
+        print("正在加载飞车功能...")
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/nznb520/MX-Script-Center/refs/heads/main/%E9%A3%9E%E8%BD%A6'))()
     end
 })
 
@@ -222,15 +452,14 @@ local noclipLoop = nil
 
 -- 穿墙功能
 local noclipToggle = Tabs.GeneralTab:Toggle({
-    Title = "穿墙模式 (Noclip)",
-    Desc = "开启后可以穿透墙壁和障碍物",
+    Title = L("noclip"),
+    Desc = L("noclipDesc"),
     Value = false,
     Callback = function(state) 
         noclipEnabled = state
         print("穿墙模式: " .. tostring(state))
         
         if state then
-            -- 启动穿墙功能
             local character = LocalPlayer.Character
             if character then
                 local function noclip()
@@ -241,18 +470,15 @@ local noclipToggle = Tabs.GeneralTab:Toggle({
                     end
                 end
                 
-                -- 创建循环
                 noclipLoop = game:GetService("RunService").Stepped:Connect(noclip)
                 
-                -- 监听角色变化
                 noclipConnection = LocalPlayer.CharacterAdded:Connect(function(newChar)
-                    wait(1) -- 等待角色加载完成
+                    wait(1)
                     noclipLoop:Disconnect()
                     noclipLoop = game:GetService("RunService").Stepped:Connect(noclip)
                 end)
             end
         else
-            -- 关闭穿墙功能
             if noclipLoop then
                 noclipLoop:Disconnect()
                 noclipLoop = nil
@@ -263,7 +489,6 @@ local noclipToggle = Tabs.GeneralTab:Toggle({
                 noclipConnection = nil
             end
             
-            -- 恢复碰撞
             local character = LocalPlayer.Character
             if character then
                 for _, part in pairs(character:GetDescendants()) do
@@ -280,34 +505,30 @@ local noclipToggle = Tabs.GeneralTab:Toggle({
 local infiniteJumpEnabled = false
 local jumpConnection = nil
 
--- 无限跳功能（修改为可以在空中跳跃）
+-- 无限跳功能
 local infiniteJumpToggle = Tabs.GeneralTab:Toggle({
-    Title = "无限跳跃",
-    Desc = "开启后可以无限次跳跃",
+    Title = L("infiniteJump"),
+    Desc = L("infiniteJumpDesc"),
     Value = false,
     Callback = function(state) 
         infiniteJumpEnabled = state
         print("无限跳跃: " .. tostring(state))
         
         if state then
-            -- 启动无限跳功能
             local player = LocalPlayer
             local character = player.Character
             local humanoid = character and character:FindFirstChildOfClass("Humanoid")
             
-            -- 立即跳跃一次
             if humanoid then
                 humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
             end
             
-            -- 修改：不检查地面，允许空中跳跃
             jumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
                 if humanoid then
                     humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
                 end
             end)
         else
-            -- 关闭无限跳功能
             if jumpConnection then
                 jumpConnection:Disconnect()
                 jumpConnection = nil
@@ -316,13 +537,67 @@ local infiniteJumpToggle = Tabs.GeneralTab:Toggle({
     end
 })
 
+-- 爬墙功能变量
+local climbEnabled = false
+local climbConnection = nil
+
+-- 爬墙功能
+local climbToggle = Tabs.GeneralTab:Toggle({
+    Title = L("climb"),
+    Desc = L("climbDesc"),
+    Value = false,
+    Callback = function(state)
+        climbEnabled = state
+        print("爬墙模式: " .. tostring(state))
+        
+        if state then
+            local player = LocalPlayer
+            local userInputService = game:GetService("UserInputService")
+            
+            climbConnection = game:GetService("RunService").Heartbeat:Connect(function()
+                if not climbEnabled then return end
+                
+                local character = player.Character
+                if not character then return end
+                
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                
+                if not humanoid or not humanoidRootPart then return end
+                
+                local isMovingForward = userInputService:IsKeyDown(Enum.KeyCode.W)
+                local isTouchingWall = false
+                
+                local raycastParams = RaycastParams.new()
+                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                raycastParams.FilterDescendantsInstances = {character}
+                
+                local rayDirection = character.HumanoidRootPart.CFrame.LookVector * 3
+                local rayResult = workspace:Raycast(humanoidRootPart.Position, rayDirection, raycastParams)
+                
+                if rayResult then
+                    isTouchingWall = true
+                end
+                
+                if isTouchingWall and isMovingForward then
+                    humanoidRootPart.Velocity = Vector3.new(humanoidRootPart.Velocity.X, 16, humanoidRootPart.Velocity.Z)
+                end
+            end)
+        else
+            if climbConnection then
+                climbConnection:Disconnect()
+                climbConnection = nil
+            end
+        end
+    end
+})
+
 -- 重置人物功能
 Tabs.GeneralTab:Button({
-    Title = "重置人物",
-    Desc = "将人物重置到初始状态",
+    Title = L("reset"),
+    Desc = L("resetDesc"),
     Callback = function() 
         print("人物已重置")
-        -- 实际的重置功能代码
         local player = LocalPlayer
         local character = player.Character
         if character then
@@ -339,17 +614,16 @@ local speedConnection = nil
 
 -- 速度控制滑动条
 Tabs.GeneralTab:Slider({
-    Title = "移动速度",
-    Desc = "拖动滑块调整人物移动速度",
+    Title = L("speed"),
+    Desc = L("speedDesc"),
     Value = {
-        Min = 16,  -- 默认游戏速度
-        Max = 200, -- 最大速度
-        Default = 16, -- 默认值
+        Min = 16,
+        Max = 200,
+        Default = 16,
     },
     Callback = function(value) 
         print("移动速度设置为: " .. value)
         
-        -- 实际的速度控制代码
         local player = LocalPlayer
         local character = player.Character
         if character then
@@ -359,14 +633,13 @@ Tabs.GeneralTab:Slider({
             end
         end
         
-        -- 监听角色变化
         if speedConnection then
             speedConnection:Disconnect()
         end
         
         speedMultiplier = value
         speedConnection = player.CharacterAdded:Connect(function(newChar)
-            wait(1) -- 等待角色加载完成
+            wait(1)
             local humanoid = newChar:FindFirstChildOfClass("Humanoid")
             if humanoid then
                 humanoid.WalkSpeed = speedMultiplier
@@ -381,17 +654,16 @@ local jumpConnection2 = nil
 
 -- 跳跃高度控制滑动条
 Tabs.GeneralTab:Slider({
-    Title = "跳跃高度",
-    Desc = "拖动滑块调整跳跃高度",
+    Title = L("jumpHeight"),
+    Desc = L("jumpHeightDesc"),
     Value = {
-        Min = 50,   -- 默认跳跃高度
-        Max = 500,  -- 最大跳跃高度
-        Default = 50, -- 默认值
+        Min = 50,
+        Max = 500,
+        Default = 50,
     },
     Callback = function(value) 
         print("跳跃高度设置为: " .. value)
         
-        -- 实际的跳跃高度控制代码
         local player = LocalPlayer
         local character = player.Character
         if character then
@@ -401,14 +673,13 @@ Tabs.GeneralTab:Slider({
             end
         end
         
-        -- 监听角色变化
         if jumpConnection2 then
             jumpConnection2:Disconnect()
         end
         
         jumpPowerMultiplier = value
         jumpConnection2 = player.CharacterAdded:Connect(function(newChar)
-            wait(1) -- 等待角色加载完成
+            wait(1)
             local humanoid = newChar:FindFirstChildOfClass("Humanoid")
             if humanoid then
                 humanoid.JumpPower = jumpPowerMultiplier
@@ -424,22 +695,20 @@ local workspaceGravity = nil
 
 -- 重力控制滑动条
 Tabs.GeneralTab:Slider({
-    Title = "重力强度",
-    Desc = "拖动滑块调整重力强度（值越小重力越弱）",
+    Title = L("gravity"),
+    Desc = L("gravityDesc"),
     Value = {
-        Min = 0,    -- 无重力
-        Max = 196.2, -- 默认重力
-        Default = 196.2, -- 默认值
+        Min = 0,
+        Max = 196.2,
+        Default = 196.2,
     },
     Callback = function(value) 
         print("重力强度设置为: " .. value)
         
-        -- 实际的重力控制代码
         local workspace = game:GetService("Workspace")
         workspace.Gravity = value
         gravityMultiplier = value
         
-        -- 监听工作空间变化
         if gravityConnection then
             gravityConnection:Disconnect()
         end
@@ -453,35 +722,78 @@ Tabs.GeneralTab:Slider({
     end
 })
 
--- ========== 高级玩家透视标签页内容 ==========
--- 高级玩家透视功能变量
+-- 地图透视功能
+Tabs.GeneralTab:Divider()
+
+-- 地图透视功能变量
+local mapXrayEnabled = false
+local originalTransparencies = {}
+
+-- 地图透视功能
+Tabs.GeneralTab:Toggle({
+    Title = L("mapXray"),
+    Desc = L("mapXrayDesc"),
+    Value = false,
+    Callback = function(state) 
+        mapXrayEnabled = state
+        print("地图透视: " .. tostring(state))
+        
+        if state then
+            originalTransparencies = {}
+            local workspace = game:GetService("Workspace")
+            
+            for _, descendant in pairs(workspace:GetDescendants()) do
+                if descendant:IsA("BasePart") and descendant.Transparency < 0.5 then
+                    originalTransparencies[descendant] = descendant.Transparency
+                    descendant.Transparency = 0.5
+                end
+            end
+            
+            workspace.DescendantAdded:Connect(function(descendant)
+                if mapXrayEnabled and descendant:IsA("BasePart") then
+                    originalTransparencies[descendant] = descendant.Transparency
+                    descendant.Transparency = 0.5
+                end
+            end)
+        else
+            for part, transparency in pairs(originalTransparencies) do
+                if part and part.Parent then
+                    part.Transparency = transparency
+                end
+            end
+            originalTransparencies = {}
+        end
+    end
+})
+
+-- ========== ESP透视标签页内容 ==========
+-- ESP功能变量
 local espEnabled = false
 local showDistance = false
 local showHealth = false
-local showSkeleton = false
 local showTracers = false
 local showTeamCheck = false
+local tracerStartPoint = "bottom"
 local espConnections = {}
 local espObjects = {}
 local espRunning = false
-local enemyColor = Color3.fromRGB(255, 255, 255) -- 白色轮廓
-local friendColor = Color3.fromRGB(0, 255, 0) -- 绿色轮廓
-local tracerColor = Color3.fromRGB(255, 255, 0) -- 黄色追踪线
+local enemyColor = Color3.fromRGB(255, 255, 255)
+local friendColor = Color3.fromRGB(0, 255, 0)
+local tracerColor = Color3.fromRGB(255, 255, 0)
+local updateTimer = 0
 
 -- 主开关 - 玩家高亮
 Tabs.ESP_Tab:Toggle({
-    Title = "玩家高亮 (白色轮廓)",
-    Desc = "开启后用白色轮廓高亮显示玩家（关闭UI后仍生效）",
+    Title = L("playerHighlight"),
+    Desc = L("playerHighlightDesc"),
     Value = false,
     Callback = function(state) 
         espEnabled = state
         print("玩家高亮: " .. tostring(state))
         
         if state then
-            -- 启动高亮功能
             createESP()
         else
-            -- 关闭高亮功能
             clearESP()
         end
     end
@@ -491,8 +803,8 @@ Tabs.ESP_Tab:Divider()
 
 -- 显示距离开关
 Tabs.ESP_Tab:Toggle({
-    Title = "显示距离",
-    Desc = "在玩家头顶显示距离（格）",
+    Title = L("showDistance"),
+    Desc = L("showDistanceDesc"),
     Value = false,
     Callback = function(state) 
         showDistance = state
@@ -502,8 +814,8 @@ Tabs.ESP_Tab:Toggle({
 
 -- 显示血量开关
 Tabs.ESP_Tab:Toggle({
-    Title = "显示血量",
-    Desc = "在玩家头顶显示剩余血量",
+    Title = L("showHealth"),
+    Desc = L("showHealthDesc"),
     Value = false,
     Callback = function(state) 
         showHealth = state
@@ -511,21 +823,10 @@ Tabs.ESP_Tab:Toggle({
     end
 })
 
--- 显示骨骼开关
-Tabs.ESP_Tab:Toggle({
-    Title = "显示骨骼",
-    Desc = "显示玩家的骨骼框架",
-    Value = false,
-    Callback = function(state) 
-        showSkeleton = state
-        print("显示骨骼: " .. tostring(state))
-    end
-})
-
 -- 显示追踪线开关
 Tabs.ESP_Tab:Toggle({
-    Title = "显示追踪线",
-    Desc = "从屏幕底部到玩家画一条追踪线",
+    Title = L("showTracers"),
+    Desc = L("showTracersDesc"),
     Value = false,
     Callback = function(state) 
         showTracers = state
@@ -533,12 +834,28 @@ Tabs.ESP_Tab:Toggle({
     end
 })
 
+-- 追踪线起点选择下拉框
+Tabs.ESP_Tab:Dropdown({
+    Title = L("tracerStart"),
+    Desc = L("tracerStartDesc"),
+    Values = { L("bottom"), L("center") },
+    Value = L("bottom"),
+    Callback = function(option)
+        if option == L("bottom") then
+            tracerStartPoint = "bottom"
+        elseif option == L("center") then
+            tracerStartPoint = "center"
+        end
+        print("追踪线起点设置为: " .. tracerStartPoint)
+    end
+})
+
 Tabs.ESP_Tab:Divider()
 
 -- 队伍检测开关
 Tabs.ESP_Tab:Toggle({
-    Title = "队伍检测",
-    Desc = "检测玩家阵营（绿色为己方，红色为敌方）",
+    Title = L("teamCheck"),
+    Desc = L("teamCheckDesc"),
     Value = false,
     Callback = function(state) 
         showTeamCheck = state
@@ -546,8 +863,8 @@ Tabs.ESP_Tab:Toggle({
     end
 })
 
--- ========== 高级ESP功能实现 ==========
--- 创建高级ESP
+-- ========== ESP功能实现 ==========
+-- 创建ESP
 function createESP()
     if espRunning then return end
     espRunning = true
@@ -558,37 +875,32 @@ function createESP()
         return 
     end
     
-    -- 遍历所有玩家
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character then
             addPlayerESP(player)
         end
     end
     
-    -- 监听新玩家加入
     espConnections.playerAdded = Players.PlayerAdded:Connect(function(player)
         player.CharacterAdded:Connect(function(character)
             if espEnabled then
-                wait(1) -- 等待角色加载完成
+                wait(1)
                 addPlayerESP(player)
             end
         end)
     end)
     
-    -- 监听玩家离开
     espConnections.playerRemoving = Players.PlayerRemoving:Connect(function(player)
         if espObjects[player.Name] then
             removePlayerESP(player.Name)
         end
-    end
-    )
+    end)
     
-    -- 监听现有玩家的角色变化
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
             espConnections[player.Name] = player.CharacterAdded:Connect(function(character)
                 if espEnabled then
-                    wait(1) -- 等待角色加载完成
+                    wait(1)
                     if espObjects[player.Name] then
                         removePlayerESP(player.Name)
                     end
@@ -598,10 +910,13 @@ function createESP()
         end
     end
     
-    -- 创建更新循环
-    espConnections.updateLoop = game:GetService("RunService").Heartbeat:Connect(function()
+    espConnections.updateLoop = game:GetService("RunService").Heartbeat:Connect(function(dt)
         if espEnabled then
-            updateESP()
+            updateTimer = updateTimer + dt
+            if updateTimer >= 1 then
+                updateESP()
+                updateTimer = 0
+            end
         end
     end)
 end
@@ -616,21 +931,18 @@ function addPlayerESP(player)
     
     if not humanoidRootPart then return end
     
-    -- 创建玩家ESP对象
     espObjects[player.Name] = {
         player = player,
         character = character,
         humanoidRootPart = humanoidRootPart,
         humanoid = humanoid,
         objects = {},
-        tracers = {},
-        skeletonParts = {}
+        tracers = {}
     }
     
     local playerData = espObjects[player.Name]
     local isFriend = isPlayerFriend(player)
     
-    -- 1. 创建高亮轮廓
     local highlight = Instance.new("Highlight")
     highlight.Name = "ESP_Highlight"
     highlight.Adornee = character
@@ -641,12 +953,11 @@ function addPlayerESP(player)
     highlight.Parent = character
     table.insert(playerData.objects, highlight)
     
-    -- 2. 创建BillboardGui用于显示信息
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "ESP_Info"
     billboard.Adornee = humanoidRootPart
     billboard.AlwaysOnTop = true
-    billboard.Size = UDim2.new(0, 200, 0, 100)
+    billboard.Size = UDim2.new(0, 200, 0, 60)
     billboard.StudsOffset = Vector3.new(0, 3.5, 0)
     billboard.ResetOnSpawn = false
     billboard.Parent = game:GetService("CoreGui")
@@ -657,27 +968,12 @@ function addPlayerESP(player)
     container.Size = UDim2.new(1, 0, 1, 0)
     container.Parent = billboard
     
-    -- 玩家名字标签
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Name = "NameLabel"
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Position = UDim2.new(0, 0, 0, 0)
-    nameLabel.Size = UDim2.new(1, 0, 0.3, 0)
-    nameLabel.Text = player.Name
-    nameLabel.TextColor3 = isFriend and showTeamCheck and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
-    nameLabel.TextScaled = true
-    nameLabel.Font = Enum.Font.SourceSansBold
-    nameLabel.TextStrokeTransparency = 0
-    nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    nameLabel.Parent = container
-    
-    -- 距离标签
     local distanceLabel = Instance.new("TextLabel")
     distanceLabel.Name = "DistanceLabel"
     distanceLabel.BackgroundTransparency = 1
-    distanceLabel.Position = UDim2.new(0, 0, 0.3, 0)
-    distanceLabel.Size = UDim2.new(1, 0, 0.3, 0)
-    distanceLabel.Text = "距离: 计算中..."
+    distanceLabel.Position = UDim2.new(0, 0, 0, 0)
+    distanceLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    distanceLabel.Text = L("showDistance") .. ": " .. L("calculating")
     distanceLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
     distanceLabel.TextScaled = true
     distanceLabel.Font = Enum.Font.SourceSans
@@ -686,13 +982,12 @@ function addPlayerESP(player)
     distanceLabel.Visible = showDistance
     distanceLabel.Parent = container
     
-    -- 血量标签
     local healthLabel = Instance.new("TextLabel")
     healthLabel.Name = "HealthLabel"
     healthLabel.BackgroundTransparency = 1
-    healthLabel.Position = UDim2.new(0, 0, 0.6, 0)
-    healthLabel.Size = UDim2.new(1, 0, 0.3, 0)
-    healthLabel.Text = "血量: 100%"
+    healthLabel.Position = UDim2.new(0, 0, 0.5, 0)
+    healthLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    healthLabel.Text = L("showHealth") .. ": 100%"
     healthLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
     healthLabel.TextScaled = true
     healthLabel.Font = Enum.Font.SourceSans
@@ -703,17 +998,14 @@ function addPlayerESP(player)
     
     table.insert(playerData.objects, billboard)
     
-    -- 监听角色销毁
     espConnections[player.Name.."_destroy"] = character.Destroying:Connect(function()
         if espObjects[player.Name] then
             removePlayerESP(player.Name)
         end
     end)
     
-    -- 监听血量变化
     if humanoid then
         espConnections[player.Name.."_health"] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-            updatePlayerHealth(player.Name)
         end)
     end
 end
@@ -752,7 +1044,6 @@ function updateESP()
     
     for playerName, playerData in pairs(espObjects) do
         if playerData.character and playerData.humanoidRootPart then
-            -- 更新距离
             if playerData.objects[2] and playerData.objects[2]:FindFirstChild("Container") then
                 local container = playerData.objects[2].Container
                 local distanceLabel = container:FindFirstChild("DistanceLabel")
@@ -762,135 +1053,32 @@ function updateESP()
                     local localCharacter = LocalPlayer.Character
                     if localCharacter and localCharacter:FindFirstChild("HumanoidRootPart") then
                         local distance = (playerData.humanoidRootPart.Position - localCharacter.HumanoidRootPart.Position).Magnitude
-                        local distanceInGrid = math.floor(distance / 4) -- 转换为格（假设1格=4studs）
-                        distanceLabel.Text = "距离: " .. distanceInGrid .. " 格"
+                        local distanceInGrid = math.floor(distance / 4)
+                        distanceLabel.Text = L("showDistance") .. ": " .. distanceInGrid .. " 格"
                         distanceLabel.Visible = showDistance
                     else
                         distanceLabel.Visible = false
                     end
                 end
                 
-                -- 更新血量
                 if healthLabel and playerData.humanoid then
                     local healthPercent = math.floor((playerData.humanoid.Health / playerData.humanoid.MaxHealth) * 100)
-                    healthLabel.Text = "血量: " .. healthPercent .. "% (" .. math.floor(playerData.humanoid.Health) .. "/" .. math.floor(playerData.humanoid.MaxHealth) .. ")"
+                    healthLabel.Text = L("showHealth") .. ": " .. healthPercent .. "% (" .. math.floor(playerData.humanoid.Health) .. "/" .. math.floor(playerData.humanoid.MaxHealth) .. ")"
                     healthLabel.Visible = showHealth
                 end
             end
             
-            -- 更新高亮颜色
             if playerData.objects[1] and playerData.objects[1]:IsA("Highlight") then
                 local isFriend = isPlayerFriend(playerData.player)
                 playerData.objects[1].OutlineColor = isFriend and showTeamCheck and friendColor or enemyColor
             end
             
-            -- 更新名字颜色
-            if playerData.objects[2] and playerData.objects[2]:FindFirstChild("Container") then
-                local container = playerData.objects[2].Container
-                local nameLabel = container:FindFirstChild("NameLabel")
-                if nameLabel then
-                    local isFriend = isPlayerFriend(playerData.player)
-                    nameLabel.TextColor3 = isFriend and showTeamCheck and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
-                end
-            end
-            
-            -- 更新骨骼
-            if showSkeleton then
-                updateSkeleton(playerName)
-            else
-                removeSkeleton(playerName)
-            end
-            
-            -- 更新追踪线
             if showTracers then
                 updateTracer(playerName)
             else
                 removeTracer(playerName)
             end
         end
-    end
-end
-
--- 更新玩家血量显示
-function updatePlayerHealth(playerName)
-    if not espObjects[playerName] then return end
-    
-    local playerData = espObjects[playerName]
-    if playerData.objects[2] and playerData.objects[2]:FindFirstChild("Container") then
-        local healthLabel = playerData.objects[2].Container:FindFirstChild("HealthLabel")
-        if healthLabel and playerData.humanoid then
-            local healthPercent = math.floor((playerData.humanoid.Health / playerData.humanoid.MaxHealth) * 100)
-            healthLabel.Text = "血量: " .. healthPercent .. "% (" .. math.floor(playerData.humanoid.Health) .. "/" .. math.floor(playerData.humanoid.MaxHealth) .. ")"
-        end
-    end
-end
-
--- 创建骨骼
-function updateSkeleton(playerName)
-    if not espObjects[playerName] then return end
-    
-    local playerData = espObjects[playerName]
-    local character = playerData.character
-    if not character then return end
-    
-    -- 清除之前的骨骼
-    removeSkeleton(playerName)
-    
-    -- 骨骼连接点
-    local skeletonPoints = {
-        "Head", "UpperTorso", "LowerTorso", "LeftUpperArm", "LeftLowerArm", "LeftHand",
-        "RightUpperArm", "RightLowerArm", "RightHand", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot",
-        "RightUpperLeg", "RightLowerLeg", "RightFoot"
-    }
-    
-    -- 骨骼连接关系
-    local skeletonConnections = {
-        {"Head", "UpperTorso"},
-        {"UpperTorso", "LowerTorso"},
-        {"UpperTorso", "LeftUpperArm"}, {"LeftUpperArm", "LeftLowerArm"}, {"LeftLowerArm", "LeftHand"},
-        {"UpperTorso", "RightUpperArm"}, {"RightUpperArm", "RightLowerArm"}, {"RightLowerArm", "RightHand"},
-        {"LowerTorso", "LeftUpperLeg"}, {"LeftUpperLeg", "LeftLowerLeg"}, {"LeftLowerLeg", "LeftFoot"},
-        {"LowerTorso", "RightUpperLeg"}, {"RightUpperLeg", "RightLowerLeg"}, {"RightLowerLeg", "RightFoot"}
-    }
-    
-    local isFriend = isPlayerFriend(playerData.player)
-    local color = isFriend and showTeamCheck and friendColor or enemyColor
-    
-    -- 创建骨骼线
-    for _, connection in pairs(skeletonConnections) do
-        local part1 = character:FindFirstChild(connection[1])
-        local part2 = character:FindFirstChild(connection[2])
-        
-        if part1 and part2 then
-            local line = Instance.new("LineHandleAdornment")
-            line.Name = "ESP_Skeleton_" .. connection[1] .. "_" .. connection[2]
-            line.Color3 = color
-            line.Transparency = 0.7
-            line.Thickness = 2
-            line.ZIndex = 5
-            line.Adornee = part1
-            line.Length = (part2.Position - part1.Position).Magnitude
-            line.CFrame = CFrame.lookAt(part1.Position, part2.Position) * CFrame.new(0, 0, -line.Length/2)
-            line.Parent = game:GetService("CoreGui")
-            
-            table.insert(playerData.objects, line)
-            table.insert(playerData.skeletonParts, line)
-        end
-    end
-end
-
--- 移除骨骼
-function removeSkeleton(playerName)
-    if not espObjects[playerName] then return end
-    
-    local playerData = espObjects[playerName]
-    if playerData.skeletonParts then
-        for _, line in pairs(playerData.skeletonParts) do
-            if line and line.Parent then
-                line:Destroy()
-            end
-        end
-        playerData.skeletonParts = {}
     end
 end
 
@@ -902,7 +1090,6 @@ function updateTracer(playerName)
     local character = playerData.character
     if not character then return end
     
-    -- 清除之前的追踪线
     removeTracer(playerName)
     
     local camera = game:GetService("Workspace").CurrentCamera
@@ -911,10 +1098,13 @@ function updateTracer(playerName)
     local humanoidRootPart = playerData.humanoidRootPart
     if not humanoidRootPart then return end
     
-    -- 获取屏幕底部中心位置
-    local screenBottom = Vector3.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y, 0)
+    local startPoint
+    if tracerStartPoint == "bottom" then
+        startPoint = Vector3.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y, 0)
+    else
+        startPoint = Vector3.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2, 0)
+    end
     
-    -- 将玩家位置转换为屏幕空间
     local playerPos, onScreen = camera:WorldToViewportPoint(humanoidRootPart.Position)
     
     if onScreen then
@@ -927,8 +1117,8 @@ function updateTracer(playerName)
         line.Transparency = 0.8
         line.Thickness = 2
         line.ZIndex = 5
-        line.Length = (Vector3.new(playerPos.X, playerPos.Y, 0) - screenBottom).Magnitude
-        line.CFrame = CFrame.lookAt(screenBottom, Vector3.new(playerPos.X, playerPos.Y, 0)) * CFrame.new(0, 0, -line.Length/2)
+        line.Length = (Vector3.new(playerPos.X, playerPos.Y, 0) - startPoint).Magnitude
+        line.CFrame = CFrame.lookAt(startPoint, Vector3.new(playerPos.X, playerPos.Y, 0)) * CFrame.new(0, 0, -line.Length/2)
         line.Parent = game:GetService("CoreGui")
         
         table.insert(playerData.objects, line)
@@ -955,12 +1145,10 @@ end
 function isPlayerFriend(player)
     if not showTeamCheck then return false end
     
-    -- 方法1: 检查队伍
     if LocalPlayer.Team and player.Team then
         return LocalPlayer.Team == player.Team
     end
     
-    -- 方法2: 检查好友列表
     local success, isFriend = pcall(function()
         return player:IsFriendsWith(LocalPlayer.UserId)
     end)
@@ -969,20 +1157,128 @@ function isPlayerFriend(player)
         return isFriend
     end
     
-    -- 方法3: 检查游戏特定机制
-    local character = player.Character
-    local localCharacter = LocalPlayer.Character
-    
-    if character and localCharacter then
-        -- 这里可以根据游戏特定的标识判断
-        -- 例如检查角色服装、标签等
-    end
-    
     return false
 end
 
+-- ========== 开发人员标签页内容 ==========
+Tabs.DeveloperTab:Paragraph({
+    Title = L("developerTitle"),
+    Desc = L("developerDesc"),
+    Image = "users",
+    Color = "Blue"
+})
+
+Tabs.DeveloperTab:Paragraph({
+    Title = L("developerAuthor"),
+    Desc = "脚本主要开发者，负责核心功能实现",
+    Image = "user",
+    Color = "Green"
+})
+
+Tabs.DeveloperTab:Paragraph({
+    Title = L("developerContact"),
+    Desc = L("developerQQ"),
+    Image = "mail",
+    Color = "Purple"
+})
+
+Tabs.DeveloperTab:Divider()
+
+Tabs.DeveloperTab:Paragraph({
+    Title = L("developerTeam"),
+    Desc = L("developerTeamDesc"),
+    Image = "users",
+    Color = "Orange"
+})
+
+Tabs.DeveloperTab:Paragraph({
+    Title = "墨龙凌霄军团",
+    Desc = "主要负责脚本功能测试与优化\n军团群号: 984492273",
+    Image = "shield",
+    Color = "Red"
+})
+
+Tabs.DeveloperTab:Paragraph({
+    Title = "星夜海军团",
+    Desc = "主要负责脚本界面设计与用户体验\n军团群号: 461528783",
+    Image = "shield",
+    Color = "Blue"
+})
+
+Tabs.DeveloperTab:Divider()
+
+Tabs.DeveloperTab:Paragraph({
+    Title = L("developerVersion"),
+    Desc = L("developerUpdate"),
+    Image = "code",
+    Color = "Grey"
+})
+
+Tabs.DeveloperTab:Divider()
+
+Tabs.DeveloperTab:Paragraph({
+    Title = L("developerThanks"),
+    Desc = L("developerThanksDesc"),
+    Image = "heart",
+    Color = "Pink"
+})
+
+-- ========== UI设置标签页内容 ==========
+-- 背景颜色选择器
+local backgroundColor = Color3.fromRGB(30, 30, 30)
+
+Tabs.UISettingsTab:Colorpicker({
+    Title = L("bgColor"),
+    Desc = L("bgColorDesc"),
+    Default = backgroundColor,
+    Transparency = 0,
+    Callback = function(color, transparency)
+        backgroundColor = color
+        print("背景颜色设置为: " .. color:ToHex())
+    end
+})
+
+-- 字体大小设置
+Tabs.UISettingsTab:Slider({
+    Title = L("fontSize"),
+    Desc = L("fontSizeDesc"),
+    Value = {
+        Min = 12,
+        Max = 24,
+        Default = 16,
+    },
+    Callback = function(value)
+        print("字体大小设置为: " .. value)
+    end
+})
+
+-- 透明度设置
+Tabs.UISettingsTab:Slider({
+    Title = L("transparency"),
+    Desc = L("transparencyDesc"),
+    Value = {
+        Min = 0,
+        Max = 1,
+        Default = 0.1,
+        Step = 0.1,
+    },
+    Callback = function(value)
+        print("界面透明度设置为: " .. value)
+        Window:ToggleTransparency(value > 0)
+    end
+})
+
+Tabs.UISettingsTab:Divider()
+
+-- 显示设置
+Tabs.UISettingsTab:Paragraph({
+    Title = L("displaySettings"),
+    Desc = L("displaySettingsDesc"),
+    Image = "monitor",
+    Color = "Blue"
+})
+
 -- ========== 选择服务器标签页内容 ==========
--- ====== 游戏ID与脚本映射配置 ======
 local GameScripts = {
     [10253248401] = {"元素力量大亨", "https://raw.githubusercontent.com/nznb520/Atrumix/042524fac05940b1b1a9389a0bbb9572441b1bc3/%E5%85%83%E7%B4%A0%E5%8A%9B%E9%87%8F%E5%A4%A7%E4%BA%A8"},
     [79546208627805] = {"99夜", "https://raw.githubusercontent.com/nznb520/Atrumix/cca264ca9a72738d7d0f51b3e5bd31a764e9d0ec/99%E5%A4%9C"},
@@ -996,8 +1292,8 @@ local GameScripts = {
 
 -- 自动检测并执行功能
 Tabs.ServerTab:Button({
-    Title = "自动检测并执行",
-    Desc = "点击检测当前游戏并自动执行对应脚本",
+    Title = L("autoDetect"),
+    Desc = L("autoDetectDesc"),
     Variant = "Primary",
     Callback = function()
         local placeId = game.PlaceId
@@ -1008,8 +1304,8 @@ Tabs.ServerTab:Button({
             local scriptUrl = GameScripts[placeId][2]
             
             WindUI:Notify({
-                Title = "检测成功",
-                Content = "检测到当前游戏: " .. gameName .. "\n正在执行脚本...",
+                Title = L("detecting"),
+                Content = L("detecting") .. ": " .. gameName .. "\n" .. L("loading") .. "...",
                 Icon = "check",
                 Duration = 3,
             })
@@ -1021,16 +1317,16 @@ Tabs.ServerTab:Button({
             
             if not success then
                 WindUI:Notify({
-                    Title = "执行失败",
-                    Content = "脚本执行失败: " .. tostring(err),
+                    Title = L("failed"),
+                    Content = L("failed") .. ": " .. tostring(err),
                     Icon = "alert-circle",
                     Duration = 5,
                 })
             end
         else
             WindUI:Notify({
-                Title = "暂不支持此服务器",
-                Content = "当前游戏ID: " .. placeId .. "\n暂未支持此游戏，请手动选择或联系作者添加支持。",
+                Title = L("notSupported"),
+                Content = L("notSupported") .. "\n游戏ID: " .. placeId,
                 Icon = "alert-circle",
                 Duration = 5,
             })
@@ -1042,11 +1338,17 @@ Tabs.ServerTab:Divider()
 
 -- 为每个游戏添加手动执行按钮
 Tabs.ServerTab:Paragraph({
-    Title = "手动选择游戏执行",
-    Desc = "如果自动检测失败，可以手动选择要执行的游戏脚本",
+    Title = L("manualSelect"),
+    Desc = L("manualSelectDesc"),
     Image = "cpu",
     Color = "Grey"
 })
+
+-- 计算支持的游戏数量
+local gameCount = 0
+for _ in pairs(GameScripts) do
+    gameCount = gameCount + 1
+end
 
 -- 遍历所有游戏，为每个游戏创建按钮
 for placeId, gameInfo in pairs(GameScripts) do
@@ -1055,11 +1357,11 @@ for placeId, gameInfo in pairs(GameScripts) do
     
     Tabs.ServerTab:Button({
         Title = "执行: " .. gameName,
-        Desc = "点击执行" .. gameName .. "脚本",
+        Desc = gameName,
         Callback = function()
             WindUI:Notify({
-                Title = "正在执行",
-                Content = "正在加载" .. gameName .. "脚本...",
+                Title = L("loading"),
+                Content = L("loading") .. " " .. gameName .. "...",
                 Icon = "cpu",
                 Duration = 3,
             })
@@ -1071,8 +1373,8 @@ for placeId, gameInfo in pairs(GameScripts) do
             
             if not success then
                 WindUI:Notify({
-                    Title = "执行失败",
-                    Content = gameName .. "脚本执行失败: " .. tostring(err),
+                    Title = L("failed"),
+                    Content = gameName .. " " .. L("failed") .. ": " .. tostring(err),
                     Icon = "alert-circle",
                     Duration = 5,
                 })
@@ -1084,150 +1386,24 @@ end
 Tabs.ServerTab:Divider()
 
 Tabs.ServerTab:Paragraph({
-    Title = "服务器功能说明",
-    Desc = "1. 自动检测并执行：自动检测当前游戏并执行对应脚本\n2. 手动选择执行：如果自动检测失败，可以手动选择游戏\n3. 当前支持" .. #GameScripts .. "款游戏",
+    Title = L("serverDesc"),
+    Desc = L("serverDescContent") .. " " .. gameCount .. " 个游戏",
     Image = "server",
     Color = "Blue"
 })
 
--- ========== 外设设置标签页内容 ==========
--- 调用该方法可设置UI整体主题，Light为亮色主题，取消注释即可生效
--- WindUI:SetTheme("Light")
-
--- 提取的UI颜色调整相关代码
--- 1. 主题选择下拉菜单 - 切换UI整体主题
-local themeValues = {}
-for name, _ in pairs(WindUI:GetThemes()) do
-    table.insert(themeValues, name)
-end
-
-local themeDropdown = Tabs.PeripheralTab:Dropdown({
-    Title = "选择主题",
-    Multi = false,
-    AllowNone = false,
-    Value = nil,
-    Values = themeValues,
-    Callback = function(theme)
-        WindUI:SetTheme(theme)
-    end
-})
-
--- 设置当前主题为默认值
-local currentTheme = WindUI:GetCurrentTheme()
-if currentTheme then
-    themeDropdown:Select(currentTheme)
-end
-
-Tabs.PeripheralTab:Divider()
-
--- 2. 窗口透明度开关
-local ToggleTransparency = Tabs.PeripheralTab:Toggle({
-    Title = "窗口透明模式",
-    Desc = "切换窗口的透明效果",
-    Callback = function(e)
-        Window:ToggleTransparency(e)
-    end,
-    Value = WindUI:GetTransparency()
-})
-
-Tabs.PeripheralTab:Divider()
-
--- 3. 自定义主题创建相关代码
--- 获取当前主题的颜色配置
-local currentThemeName = WindUI:GetCurrentTheme()
-local themes = WindUI:GetThemes()
-local ThemeAccent = themes[currentThemeName].Accent
-local ThemeOutline = themes[currentThemeName].Outline
-local ThemeText = themes[currentThemeName].Text
-local ThemePlaceholderText = themes[currentThemeName].Placeholder
-
--- 更新主题的函数
-function updateTheme()
-    WindUI:AddTheme({
-        Name = currentThemeName,
-        Accent = ThemeAccent,
-        Outline = ThemeOutline,
-        Text = ThemeText,
-        Placeholder = ThemePlaceholderText
-    })
-    WindUI:SetTheme(currentThemeName)
-end
-
--- 主题名称输入框
-local CreateInput = Tabs.PeripheralTab:Input({
-    Title = "主题名称",
-    Desc = "输入新主题的名称",
-    Value = currentThemeName,
-    Callback = function(name)
-        currentThemeName = name
-    end
-})
-
-Tabs.PeripheralTab:Divider()
-
--- 背景色选择器（主色调）
-Tabs.PeripheralTab:Colorpicker({
-    Title = "背景颜色",
-    Desc = "选择界面的背景颜色",
-    Default = Color3.fromHex(ThemeAccent),
-    Callback = function(color)
-        ThemeAccent = color:ToHex()
-    end
-})
-
--- 轮廓色选择器
-Tabs.PeripheralTab:Colorpicker({
-    Title = "轮廓颜色",
-    Desc = "选择界面的轮廓颜色",
-    Default = Color3.fromHex(ThemeOutline),
-    Callback = function(color)
-        ThemeOutline = color:ToHex()
-    end
-})
-
--- 文字色选择器
-Tabs.PeripheralTab:Colorpicker({
-    Title = "文字颜色",
-    Desc = "选择界面中的文字颜色",
-    Default = Color3.fromHex(ThemeText),
-    Callback = function(color)
-        ThemeText = color:ToHex()
-    end
-})
-
--- 占位文字色选择器
-Tabs.PeripheralTab:Colorpicker({
-    Title = "占位文字颜色",
-    Desc = "选择占位文字的颜色",
-    Default = Color3.fromHex(ThemePlaceholderText),
-    Callback = function(color)
-        ThemePlaceholderText = color:ToHex()
-    end
-})
-
-Tabs.PeripheralTab:Divider()
-
--- 更新主题按钮
-Tabs.PeripheralTab:Button({
-    Title = "更新主题",
-    Desc = "应用自定义主题设置",
-    Variant = "Primary",
-    Callback = function()
-        updateTheme()
-        WindUI:Notify({
-            Title = "主题已更新",
-            Content = "自定义主题已成功应用",
-            Icon = "check",
-            Duration = 3,
-        })
-    end
+-- 温馨提示
+Tabs.ServerTab:Paragraph({
+    Title = L("tip"),
+    Desc = L("tipContent"),
+    Image = "alert-circle",
+    Color = "Red"
 })
 
 -- 窗口关闭回调
 Window:OnClose(function()
     print("MX脚本中心UI已关闭，但透视功能仍保持运行")
     
-    -- 清理除ESP外的所有功能
     if noclipLoop then
         noclipLoop:Disconnect()
     end
@@ -1238,6 +1414,10 @@ Window:OnClose(function()
     
     if jumpConnection then
         jumpConnection:Disconnect()
+    end
+    
+    if climbConnection then
+        climbConnection:Disconnect()
     end
     
     if speedConnection then
@@ -1252,16 +1432,12 @@ Window:OnClose(function()
         gravityConnection:Disconnect()
     end
     
-    -- 恢复重力设置
     game:GetService("Workspace").Gravity = 196.2
-    
-    -- 注意：不清理ESP，使其在关闭UI后仍保持运行
-    -- 如果需要清理ESP，请手动关闭透视开关
 end)
 
 -- 设置呼出按钮
 Window:EditOpenButton({
-    Title = "打开MX脚本中心",  -- ML改为MX
+    Title = L("welcomeTitle"),
     Icon = "cpu",
     CornerRadius = UDim.new(0,16),
     StrokeThickness = 2,
@@ -1272,12 +1448,11 @@ Window:EditOpenButton({
     Draggable = true,
 })
 
--- 在窗口创建后添加用户信息展示（作为额外展示）
--- 这段代码会在窗口初始化完成后执行
+-- 在窗口创建后添加用户信息展示
 local function showWelcomeMessage()
     WindUI:Notify({
-        Title = "欢迎使用MX脚本中心",  -- ML改为MX
-        Content = string.format("当前用户: %s (@%s)\n作者: 南烛", displayName, username),
+        Title = L("welcomeTitle"),
+        Content = string.format("当前用户: %s (@%s)\n" .. L("author"), displayName, username),
         Icon = avatarUrl,
         IconThemed = false,
         Duration = 5,
@@ -1288,7 +1463,7 @@ end
 task.wait(1)
 showWelcomeMessage()
 
-print("MX脚本中心加载完成！")  -- ML改为MX
+print("MX脚本中心加载完成！")
 print("当前用户: " .. displayName .. " (@" .. username .. ")")
-print("脚本作者: 南烛")
-: 南烛")
+print("脚本作者: 南烛")</yb_code>
+</yb_canvas>
